@@ -1,0 +1,39 @@
+{
+  "name": "ubikjs",
+  "version": "0.0.1",
+  "description": "Ubik is a simple JavaScript queuing system that can run either client or server side with easy retries.",
+  "main": "ubik.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "javascript",
+    "queue",
+    "retry",
+    "retries"
+  ],
+  "author": "Buddy Toups <mydesignbuddy@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "del": "^2.2.2",
+    "gulp": "^3.9.1",
+    "gulp-concat": "^2.6.1",
+    "gulp-concat-js": "^0.1.0",
+    "gulp-debug": "^3.0.0",
+    "gulp-inject": "^4.2.0",
+    "gulp-rimraf": "^0.2.1",
+    "gulp-sourcemaps": "^1.9.1",
+    "gulp-tslint": "^7.0.1",
+    "gulp-typescript": "^3.1.3",
+    "merge2": "^1.0.3",
+    "mocha": "^3.2.0",
+    "require": "^2.4.20",
+    "requirejs": "^2.3.2",
+    "tslint": "^4.1.1",
+    "typescript": "^2.1.4"
+  },
+  "dependencies": {
+    "typescript": "^2.1.4"
+  }
+}

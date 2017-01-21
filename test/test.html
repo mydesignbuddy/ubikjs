@@ -1,0 +1,70 @@
+<html>
+
+<head>
+    <title>Ubik Client Side Tests</title>
+    <script src="../node_modules/requirejs/require.js" data-main="../dist/amd/ubik"></script>
+</head>
+
+<body>
+    <script>
+            var causeErrorCheckBox;
+            var outputBox;
+
+            function customListner() {
+                this.successful = function (r) { refreshOutput(); console.log("Success!") }
+                this.failure = function (r) { refreshOutput(); console.error("Failed!") }
+                this.expired = function (r) { refreshOutput(); console.info("Expiried!") }
+            };
+            var queue = new Ubik.QueueBackends.InMemory();
+            var q = new Ubik.QueueBuilder("general", queue)
+                .handler(function (message) {
+                    return (!causeErrorCheckBox.checked) ? { data: null, wasSuccessful: true } : { data: { errorcode: 500 }, wasSuccessful: false };
+                })
+                .retries(3)
+                .supportExpiration()
+                .supportUUID()
+                .listener(new customListner())
+                .build();
+
+            q.enqueue({ payload: { some: "helloworld1" }});
+            q.enqueue({
+                payload: { some: "helloworld2" },
+                headers: { expirationDate: new Date(), "X-SOME-CUSTOM-HEADER": 123456 }
+            });
+            q.enqueue(
+                new Ubik.Message(
+                    { some: "helloworld3" }
+                )
+            );
+            q.enqueue(
+                new Ubik.Message(
+                    "http://apple.com",
+                    { "expirationDate": new Date() }
+                )
+            );
+
+            var refreshOutput = function () {
+                outputBox.value = JSON.stringify(window.queue.getMessages(), null, 2);
+            }
+            window.onload = function () {
+                var runButton = document.getElementById('runButton');
+                causeErrorCheckBox = document.getElementById('causeErrorCheckBox');
+                outputBox = document.getElementById('output');
+
+                runButton.onclick = function () {
+                    q.run();
+                };
+
+                refreshOutput();
+            };
+        </script>
+
+<input type="button" id="runButton" name="Run" value="Run" />
+<input type="checkbox" id="causeErrorCheckBox" name="CauseError" value="CauseError" /> Cause Error
+<br />
+
+<textarea id="output" style="width:80%; height: 300px;">
+</textarea>
+</body>
+
+</html>
