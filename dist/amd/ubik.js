@@ -502,11 +502,11 @@ define("QueueBuilder", ["require", "exports", "Listeners/ConsoleListner", "Handl
             this.filter(new RetryFilter_1.RetryFilter(maxNumberRetries));
             return this;
         };
-        QueueBuilder.prototype.supportExpiration = function () {
+        QueueBuilder.prototype.expiration = function () {
             this.filter(new ExpirationFilter_1.ExpirationFilter());
             return this;
         };
-        QueueBuilder.prototype.supportUUID = function () {
+        QueueBuilder.prototype.UUID = function () {
             this.filter(new UUIDFilter_1.UUIDFilter());
             return this;
         };
@@ -524,10 +524,7 @@ define("QueueBuilder", ["require", "exports", "Listeners/ConsoleListner", "Handl
                 if (this._handler !== null) {
                     this._queue.setHandler(this._handler);
                     if (this._filters.length > 0) {
-                        for (var _i = 0, _a = this._filters; _i < _a.length; _i++) {
-                            var filter = _a[_i];
-                            this._queue.addFilter(filter);
-                        }
+                        this.filters(this._filters);
                     }
                     if (this._listener !== null) {
                         this._queue.setResponseListener(this._listener);

@@ -93,9 +93,7 @@ export class QueueBuilder {
                 this._queue.setHandler(this._handler);
 
                 if (this._filters.length > 0) {
-                    for (let filter of this._filters) {
-                        this._queue.addFilter(filter);
-                    }
+                    this.filters(this._filters);
                 }
 
                 if (this._listener !== null) {
