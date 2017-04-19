@@ -1,10 +1,10 @@
 {
   "name": "ubikjs",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Ubik is a simple JavaScript queuing system that can run either client or server side with easy retries.",
-  "main": "ubik.js",
+  "main": "./dist/commonjs/Ubik.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "gulp test"
   },
   "keywords": [
     "javascript",
@@ -13,7 +13,12 @@
     "retries"
   ],
   "author": "Buddy Toups <mydesignbuddy@gmail.com>",
-  "license": "MIT",
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/mydesignbuddy/ubikjs/blob/master/LICENSE"
+    }
+  ],
   "devDependencies": {
     "chai": "^3.5.0",
     "chai-spies": "^0.7.1",
