@@ -12,6 +12,10 @@
     "retry",
     "retries"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git://git@github.com:mydesignbuddy/ubikjs.git"
+  },
   "author": "Buddy Toups <mydesignbuddy@gmail.com>",
   "licenses": [
     {

@@ -14,7 +14,7 @@ UbikJS is a simple message queue framework built from the ground up for UI appli
 * Presistent and Non-Presistent queue storage (depends on backend)
 * Message Expirations
 * Supports multiple storage backends (Currently only in-memory)
-  * in-memory ![](./graphics/nodejs-icon.png)![](./graphics/chrome-icon.png)
+  * in-memory ![](https://raw.githubusercontent.com/mydesignbuddy/ubikjs/master/graphics/nodejs-icon.png)![](https://raw.githubusercontent.com/mydesignbuddy/ubikjs/master/graphics/chrome-icon.png)
 
 ## When you **SHOULD** use UbikJS:
 1. Applications that rely on remote calls and recover from lost network connectivity is required.
@@ -34,8 +34,8 @@ UbikJS is a simple message queue framework built from the ground up for UI appli
 
 * Auto-detect offline mode and restart queues when back online
 * More storage backends:
-    * sessionStorage ![](./graphics/chrome-icon.png)
-    * Filesystem ![](./graphics/nodejs-icon.png)
-    * SQLite ![](./graphics/nodejs-icon.png)
-    * localStorage ![](./graphics/chrome-icon.png)
+    * sessionStorage ![](https://raw.githubusercontent.com/mydesignbuddy/ubikjs/master/graphics/chrome-icon.png)
+    * Filesystem ![](https://raw.githubusercontent.com/mydesignbuddy/ubikjs/master/graphics/nodejs-icon.png)
+    * SQLite ![](https://raw.githubusercontent.com/mydesignbuddy/ubikjs/master/graphics/nodejs-icon.png)
+    * localStorage ![](https://raw.githubusercontent.com/mydesignbuddy/ubikjs/master/graphics/chrome-icon.png)
 * Schedule messages
