@@ -9,7 +9,7 @@ export class Handler implements IQueueHandler {
         this.funct = funct;
     }
     handle(queue: Queue, message: Message): void {
-        let result = this.funct(message) as HandlerResponse;
+        let result = HandlerResponse.load(this.funct(message));
         queue.response(new HandlerResponse(message, result.data, result.wasSuccessful));
     }
 }

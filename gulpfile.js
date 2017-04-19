@@ -8,12 +8,20 @@ var gulp = require('gulp'),
     sourcemaps = require('gulp-sourcemaps'),
     del = require('del'),
     Config = require('./gulpfile.config'),
+    mocha = require('gulp-mocha'),
     merge = require('merge2'); //,
     //tsProject = tsc.createProject('tsconfig.json')
     ;
 
 var concat = require("gulp-concat");
 var config = new Config();
+
+
+gulp.task('test', function () {
+    gulp.src('test/**/*.js', { read: false })
+        // gulp-mocha needs filepaths so you can't have any plugins before it
+        .pipe(mocha({ reporter: 'min' }))
+});
 
 /**
  * Generates the app.d.ts references file dynamically from all application *.ts files.
@@ -70,6 +78,7 @@ gulp.task('compile-amd', function () {
         tsResult.js.pipe(gulp.dest('dist/amd'))
     ]);
 });
+
 
 gulp.task('compile', ['compile-commonjs', 'compile-amd']);
 gulp.task('default', ['ts-lint', 'ts-compile']);

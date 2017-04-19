@@ -1,9 +1,7 @@
 import { Listener } from './Listeners/Listener';
 import { ConsoleListner } from './Listeners/ConsoleListner';
-import { HandlerResponse } from './Handlers/HandlerResponse';
 import { IQueueHandler } from './Handlers/IQueueHandler';
 import { Handler } from './Handlers/Handler';
-import { Message } from './Message';
 import { Queue } from './Queue';
 import { IBackend } from './Backends/IBackend';
 import { FilesystemBackend } from './Backends/FilesystemBackend';
@@ -97,7 +95,7 @@ export class QueueBuilder {
                 }
 
                 if (this._listener !== null) {
-                    this._queue.setResponseListener(this._listener);
+                    this._queue.setListener(this._listener);
                 }
             } else {
                 throw "You must set a handler";

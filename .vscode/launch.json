@@ -22,13 +22,17 @@
             "sourceMaps": true
         },
         {
-            "name": "Run mocha",
+            "name": "Run Mocha",
             "type": "node",
             "request": "launch",
             "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
             "stopOnEntry": false,
             "args": [
                 "test/**/*.js",
+                "--reporter",
+                "mocha-multi",
+                "--reporter-options",
+                "mocha-osx-reporter=-,spec=-",
                 "--no-timeouts"
             ],
             "cwd": "${workspaceRoot}",

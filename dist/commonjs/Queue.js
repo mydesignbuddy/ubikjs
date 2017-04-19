@@ -1,14 +1,13 @@
 "use strict";
 var Message_1 = require("./Message");
+var HandlerResponse_1 = require("./Handlers/HandlerResponse");
 var Queue = (function () {
     function Queue(name, queue, handler, responseListener) {
         this._filters = [];
         this.name = name;
         this._backend = queue;
-        if (handler !== null) {
-            this.setHandler(handler);
-        }
-        this.setResponseListener((responseListener != null) ? responseListener : null);
+        this.setHandler((handler != null) ? handler : null);
+        this.setListener((responseListener != null) ? responseListener : null);
     }
     Queue.prototype.addFilter = function (filter) {
         var filterExist = false;
@@ -31,8 +30,8 @@ var Queue = (function () {
     Queue.prototype.setHandler = function (handler) {
         this.handler = handler;
     };
-    Queue.prototype.setResponseListener = function (listener) {
-        this.responseListener = listener;
+    Queue.prototype.setListener = function (listener) {
+        this.listener = listener;
     };
     Queue.prototype.enqueue = function (message) {
         message = Message_1.Message.load(message);
@@ -51,7 +50,7 @@ var Queue = (function () {
         }
     };
     Queue.prototype.peek = function () {
-        return this._backend.peek();
+        return Message_1.Message.load(this._backend.peek());
     };
     Queue.prototype.dequeue = function () {
         this._backend.dequeue();
@@ -65,7 +64,6 @@ var Queue = (function () {
     Queue.prototype.run = function () {
         if (this.count() > 0) {
             var message = this.peek();
-            message = message;
             this.dequeue();
             if (this._filters.length > 0) {
                 for (var _i = 0, _a = this._filters; _i < _a.length; _i++) {
@@ -85,7 +83,7 @@ var Queue = (function () {
         }
     };
     Queue.prototype.response = function (response) {
-        response = response;
+        response = HandlerResponse_1.HandlerResponse.load(response);
         if (this._filters.length > 0) {
             for (var _i = 0, _a = this._filters; _i < _a.length; _i++) {
                 var filter = _a[_i];
@@ -93,10 +91,10 @@ var Queue = (function () {
             }
         }
         if (!response.wasSuccessful) {
-            this.responseListener.failure(response);
+            this.listener.failure(response);
         }
         else {
-            this.responseListener.successful(response);
+            this.listener.successful(response);
         }
         if (this._filters.length > 0) {
             for (var _b = 0, _c = this._filters; _b < _c.length; _b++) {

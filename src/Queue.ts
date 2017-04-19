@@ -7,7 +7,7 @@ import { IBackend } from './Backends/IBackend';
 export class Queue {
     public name: string;
     public handler: IQueueHandler;
-    public responseListener: Listener;
+    public listener: Listener;
     private _backend: IBackend;
     private _filters: IQueueFilter[];
 
@@ -15,10 +15,8 @@ export class Queue {
         this._filters = [];
         this.name = name;
         this._backend = queue;
-        if (handler !== null) {
-            this.setHandler(handler);
-        }
-        this.setResponseListener((responseListener != null) ? responseListener : null);
+        this.setHandler((handler != null) ? handler : null);
+        this.setListener((responseListener != null) ? responseListener : null);
     }
 
     public addFilter(filter: IQueueFilter): void {
@@ -45,8 +43,8 @@ export class Queue {
         this.handler = handler;
     }
 
-    public setResponseListener(listener: Listener): void {
-        this.responseListener = listener;
+    public setListener(listener: Listener): void {
+        this.listener = listener;
     }
 
     public enqueue(message: Message): void {
@@ -68,7 +66,7 @@ export class Queue {
     }
 
     public peek(): Message {
-        return this._backend.peek();
+        return Message.load(this._backend.peek());
     }
 
     public dequeue(): void {
@@ -86,7 +84,6 @@ export class Queue {
     public run(): void {
         if (this.count() > 0) {
             let message = this.peek();
-            message = message as Message;
             this.dequeue();
 
             if (this._filters.length > 0) {
@@ -108,7 +105,7 @@ export class Queue {
     }
 
     public response(response: HandlerResponse): void {
-        response = <HandlerResponse>response;
+        response = HandlerResponse.load(response);
 
         if (this._filters.length > 0) {
             for (let filter of this._filters) {
@@ -117,9 +114,9 @@ export class Queue {
         }
 
         if (!response.wasSuccessful) {
-            this.responseListener.failure(response);
+            this.listener.failure(response);
         } else {
-            this.responseListener.successful(response);
+            this.listener.successful(response);
         }
 
         if (this._filters.length > 0) {

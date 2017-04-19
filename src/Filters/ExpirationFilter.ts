@@ -9,8 +9,8 @@ export class ExpirationFilter extends QueueFilter {
         if (expiration !== null) {
             if (expiration instanceof Date) {
                 if (expiration <= new Date()) {
-                    if (queue.responseListener !== null) {
-                        queue.responseListener.expired(message);
+                    if (queue.listener !== null) {
+                        queue.listener.expired(message);
                     }
                     return null;
                 } else {

@@ -78,7 +78,7 @@ var QueueBuilder = (function () {
                     this.filters(this._filters);
                 }
                 if (this._listener !== null) {
-                    this._queue.setResponseListener(this._listener);
+                    this._queue.setListener(this._listener);
                 }
             }
             else {

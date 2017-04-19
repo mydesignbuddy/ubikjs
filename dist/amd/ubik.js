@@ -47,6 +47,21 @@ define("Handlers/HandlerResponse", ["require", "exports"], function (require, ex
             this.data = errorMessages;
             this.wasSuccessful = wasSuccessful;
         }
+        HandlerResponse.load = function (obj) {
+            var message = null;
+            var data = null;
+            var wasSuccessful = false;
+            if (obj.message !== undefined) {
+                message = obj.message;
+            }
+            if (obj.data !== undefined) {
+                data = obj.data;
+            }
+            if (obj.wasSuccessful !== undefined) {
+                wasSuccessful = obj.wasSuccessful;
+            }
+            return new HandlerResponse(message, data, wasSuccessful);
+        };
         return HandlerResponse;
     }());
     exports.HandlerResponse = HandlerResponse;
@@ -81,17 +96,15 @@ define("Filters/IQueueFilter", ["require", "exports"], function (require, export
 define("Backends/IBackend", ["require", "exports"], function (require, exports) {
     "use strict";
 });
-define("Queue", ["require", "exports", "Message"], function (require, exports, Message_1) {
+define("Queue", ["require", "exports", "Message", "Handlers/HandlerResponse"], function (require, exports, Message_1, HandlerResponse_1) {
     "use strict";
     var Queue = (function () {
         function Queue(name, queue, handler, responseListener) {
             this._filters = [];
             this.name = name;
             this._backend = queue;
-            if (handler !== null) {
-                this.setHandler(handler);
-            }
-            this.setResponseListener((responseListener != null) ? responseListener : null);
+            this.setHandler((handler != null) ? handler : null);
+            this.setListener((responseListener != null) ? responseListener : null);
         }
         Queue.prototype.addFilter = function (filter) {
             var filterExist = false;
@@ -114,8 +127,8 @@ define("Queue", ["require", "exports", "Message"], function (require, exports, M
         Queue.prototype.setHandler = function (handler) {
             this.handler = handler;
         };
-        Queue.prototype.setResponseListener = function (listener) {
-            this.responseListener = listener;
+        Queue.prototype.setListener = function (listener) {
+            this.listener = listener;
         };
         Queue.prototype.enqueue = function (message) {
             message = Message_1.Message.load(message);
@@ -134,7 +147,7 @@ define("Queue", ["require", "exports", "Message"], function (require, exports, M
             }
         };
         Queue.prototype.peek = function () {
-            return this._backend.peek();
+            return Message_1.Message.load(this._backend.peek());
         };
         Queue.prototype.dequeue = function () {
             this._backend.dequeue();
@@ -148,7 +161,6 @@ define("Queue", ["require", "exports", "Message"], function (require, exports, M
         Queue.prototype.run = function () {
             if (this.count() > 0) {
                 var message = this.peek();
-                message = message;
                 this.dequeue();
                 if (this._filters.length > 0) {
                     for (var _i = 0, _a = this._filters; _i < _a.length; _i++) {
@@ -168,7 +180,7 @@ define("Queue", ["require", "exports", "Message"], function (require, exports, M
             }
         };
         Queue.prototype.response = function (response) {
-            response = response;
+            response = HandlerResponse_1.HandlerResponse.load(response);
             if (this._filters.length > 0) {
                 for (var _i = 0, _a = this._filters; _i < _a.length; _i++) {
                     var filter = _a[_i];
@@ -176,10 +188,10 @@ define("Queue", ["require", "exports", "Message"], function (require, exports, M
                 }
             }
             if (!response.wasSuccessful) {
-                this.responseListener.failure(response);
+                this.listener.failure(response);
             }
             else {
-                this.responseListener.successful(response);
+                this.listener.successful(response);
             }
             if (this._filters.length > 0) {
                 for (var _b = 0, _c = this._filters; _b < _c.length; _b++) {
@@ -209,15 +221,15 @@ define("Listeners/ConsoleListner", ["require", "exports", "Listeners/Listener"],
     }(Listener_1.Listener));
     exports.ConsoleListner = ConsoleListner;
 });
-define("Handlers/Handler", ["require", "exports", "Handlers/HandlerResponse"], function (require, exports, HandlerResponse_1) {
+define("Handlers/Handler", ["require", "exports", "Handlers/HandlerResponse"], function (require, exports, HandlerResponse_2) {
     "use strict";
     var Handler = (function () {
         function Handler(funct) {
             this.funct = funct;
         }
         Handler.prototype.handle = function (queue, message) {
-            var result = this.funct(message);
-            queue.response(new HandlerResponse_1.HandlerResponse(message, result.data, result.wasSuccessful));
+            var result = HandlerResponse_2.HandlerResponse.load(this.funct(message));
+            queue.response(new HandlerResponse_2.HandlerResponse(message, result.data, result.wasSuccessful));
         };
         return Handler;
     }());
@@ -381,8 +393,8 @@ define("Filters/ExpirationFilter", ["require", "exports", "Message", "Filters/Qu
             if (expiration !== null) {
                 if (expiration instanceof Date) {
                     if (expiration <= new Date()) {
-                        if (queue.responseListener !== null) {
-                            queue.responseListener.expired(message);
+                        if (queue.listener !== null) {
+                            queue.listener.expired(message);
                         }
                         return null;
                     }
@@ -527,7 +539,7 @@ define("QueueBuilder", ["require", "exports", "Listeners/ConsoleListner", "Handl
                         this.filters(this._filters);
                     }
                     if (this._listener !== null) {
-                        this._queue.setResponseListener(this._listener);
+                        this._queue.setListener(this._listener);
                     }
                 }
                 else {
@@ -543,7 +555,7 @@ define("QueueBuilder", ["require", "exports", "Listeners/ConsoleListner", "Handl
     }());
     exports.QueueBuilder = QueueBuilder;
 });
-define("Ubik", ["require", "exports", "Message", "Queue", "QueueBuilder", "Backends/FilesystemBackend", "Backends/InMemoryBackend", "Backends/LocalStorageBackend", "Backends/SqliteBackend", "Filters/ExpirationFilter", "Filters/QueueFilter", "Filters/RetryFilter", "Filters/UUIDFilter", "Handlers/Handler", "Handlers/HandlerResponse", "Listeners/Listener", "Listeners/ConsoleListner"], function (require, exports, Message_6, Queue_2, QueueBuilder_1, FilesystemBackend_2, InMemoryBackend_2, LocalStorageBackend_2, SqliteBackend_2, ExpirationFilter_2, QueueFilter_4, RetryFilter_2, UUIDFilter_2, Handler_2, HandlerResponse_2, Listener_2, ConsoleListner_2) {
+define("Ubik", ["require", "exports", "Message", "Queue", "QueueBuilder", "Backends/FilesystemBackend", "Backends/InMemoryBackend", "Backends/LocalStorageBackend", "Backends/SqliteBackend", "Filters/ExpirationFilter", "Filters/QueueFilter", "Filters/RetryFilter", "Filters/UUIDFilter", "Handlers/Handler", "Handlers/HandlerResponse", "Listeners/Listener", "Listeners/ConsoleListner"], function (require, exports, Message_6, Queue_2, QueueBuilder_1, FilesystemBackend_2, InMemoryBackend_2, LocalStorageBackend_2, SqliteBackend_2, ExpirationFilter_2, QueueFilter_4, RetryFilter_2, UUIDFilter_2, Handler_2, HandlerResponse_3, Listener_2, ConsoleListner_2) {
     "use strict";
     exports.Message = Message_6.Message;
     exports.Queue = Queue_2.Queue;
@@ -557,7 +569,7 @@ define("Ubik", ["require", "exports", "Message", "Queue", "QueueBuilder", "Backe
     exports.RetryFilter = RetryFilter_2.RetryFilter;
     exports.UUIDFilter = UUIDFilter_2.UUIDFilter;
     exports.Handler = Handler_2.Handler;
-    exports.HandlerResponse = HandlerResponse_2.HandlerResponse;
+    exports.HandlerResponse = HandlerResponse_3.HandlerResponse;
     exports.Listener = Listener_2.Listener;
     exports.ConsoleListner = ConsoleListner_2.ConsoleListner;
 });
