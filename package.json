@@ -1,6 +1,6 @@
 {
   "name": "ubikjs",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Ubik is a simple JavaScript queuing system that can run either client or server side with easy retries.",
   "main": "./dist/commonjs/Ubik.js",
   "scripts": {
