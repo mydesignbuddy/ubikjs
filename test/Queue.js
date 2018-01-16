@@ -1,5 +1,4 @@
 var assert = require('assert');
-var chai = require('chai');
 var sinon = require('sinon');
 var Ubik = require('../dist/commonjs/Ubik');
 var Message = Ubik.Message;
@@ -493,52 +492,53 @@ describe('Queue', function () {
       assert(f1.beforeRun.calledOnce);
       assert(f2.beforeRun.calledOnce);
     });
-  });
-  it('response() with one afterRun filter', function () {
-    // arrange
-    var h = new Handler(function (d) { return new HandlerResponse(d, null, true) });
-    var l = new Listener(function (d) { }, function (d) { }, function (d) { });
 
-    var q = new Queue("someQueue", new InMemoryBackend(), h, l);
+    it('response() with one afterRun filter', function () {
+      // arrange
+      var h = new Handler(function (d) { return new HandlerResponse(d, null, true) });
+      var l = new Listener(function (d) { }, function (d) { }, function (d) { });
 
-    var f1 = new QueueFilter();
-    sinon.spy(f1, "afterRun");
-    q.addFilter(f1);
+      var q = new Queue("someQueue", new InMemoryBackend(), h, l);
 
-    q.enqueue(new Message({ id: "1" }));
-    q.enqueue(new Message({ id: "2" }));
-    q.enqueue(new Message({ id: "3" }));
+      var f1 = new QueueFilter();
+      sinon.spy(f1, "afterRun");
+      q.addFilter(f1);
 
-    // act
-    q.run();
+      q.enqueue(new Message({ id: "1" }));
+      q.enqueue(new Message({ id: "2" }));
+      q.enqueue(new Message({ id: "3" }));
 
-    // assert
-    assert(f1.afterRun.calledOnce);
-  });
+      // act
+      q.run();
 
-  it('response() with many afterRun filters', function () {
-    // arrange
-    var h = new Handler(function (d) { return new HandlerResponse(d, null, true) });
-    var l = new Listener(function (d) { }, function (d) { }, function (d) { });
+      // assert
+      assert(f1.afterRun.calledOnce);
+    });
 
-    var q = new Queue("someQueue", new InMemoryBackend(), h, l);
+    it('response() with many afterRun filters', function () {
+      // arrange
+      var h = new Handler(function (d) { return new HandlerResponse(d, null, true) });
+      var l = new Listener(function (d) { }, function (d) { }, function (d) { });
 
-    var f1 = new QueueFilter();
-    var f2 = new UUIDFilter();
-    sinon.spy(f1, "afterRun");
-    sinon.spy(f2, "afterRun");
-    q.addFilter(f1);
-    q.addFilter(f2);
+      var q = new Queue("someQueue", new InMemoryBackend(), h, l);
 
-    q.enqueue(new Message({ id: "1" }));
-    q.enqueue(new Message({ id: "2" }));
-    q.enqueue(new Message({ id: "3" }));
+      var f1 = new QueueFilter();
+      var f2 = new UUIDFilter();
+      sinon.spy(f1, "afterRun");
+      sinon.spy(f2, "afterRun");
+      q.addFilter(f1);
+      q.addFilter(f2);
 
-    // act
-    q.run();
+      q.enqueue(new Message({ id: "1" }));
+      q.enqueue(new Message({ id: "2" }));
+      q.enqueue(new Message({ id: "3" }));
 
-    // assert
-    assert(f1.afterRun.calledOnce);
-    assert(f2.afterRun.calledOnce);
+      // act
+      q.run();
+
+      // assert
+      assert(f1.afterRun.calledOnce);
+      assert(f2.afterRun.calledOnce);
+    });
   });
 });

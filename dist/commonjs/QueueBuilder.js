@@ -1,5 +1,6 @@
 "use strict";
-var ConsoleListner_1 = require("./Listeners/ConsoleListner");
+var Listener_1 = require("./Listeners/Listener");
+var ConsoleListener_1 = require("./Listeners/ConsoleListener");
 var Handler_1 = require("./Handlers/Handler");
 var Queue_1 = require("./Queue");
 var FilesystemBackend_1 = require("./Backends/FilesystemBackend");
@@ -15,6 +16,10 @@ var QueueBuilder = (function () {
         if (backend !== null) {
             this._backend = backend;
         }
+        this._filters = [];
+        this._successFunct = function () { };
+        this._failureFunct = function () { };
+        this._expireFunct = function () { };
     }
     QueueBuilder.prototype.handler = function (handler) {
         var type = handler.constructor.name;
@@ -26,17 +31,33 @@ var QueueBuilder = (function () {
         }
         return this;
     };
-    QueueBuilder.prototype.InMemory = function () {
+    QueueBuilder.prototype.success = function (funct) {
+        this._successFunct = funct;
+        return this;
+    };
+    QueueBuilder.prototype.failure = function (funct) {
+        this._failureFunct = funct;
+        return this;
+    };
+    QueueBuilder.prototype.expire = function (funct) {
+        this._expireFunct = funct;
+        return this;
+    };
+    QueueBuilder.prototype.inMemory = function () {
         this._backend = new InMemoryBackend_1.InMemoryBackend();
+        return this;
     };
-    QueueBuilder.prototype.Filesystem = function () {
+    QueueBuilder.prototype.filesystem = function () {
         this._backend = new FilesystemBackend_1.FilesystemBackend();
+        return this;
     };
-    QueueBuilder.prototype.LocalStorage = function () {
+    QueueBuilder.prototype.localStorage = function () {
         this._backend = new LocalStorageBackend_1.LocalStorageBackend();
+        return this;
     };
-    QueueBuilder.prototype.Sqlite = function () {
+    QueueBuilder.prototype.sqlite = function () {
         this._backend = new SqliteBackend_1.SqliteBackend();
+        return this;
     };
     QueueBuilder.prototype.filter = function (filter) {
         this._filters.push(filter);
@@ -62,7 +83,7 @@ var QueueBuilder = (function () {
         return this;
     };
     QueueBuilder.prototype.debug = function () {
-        this._listener = new ConsoleListner_1.ConsoleListner();
+        this._listener = new ConsoleListener_1.ConsoleListener();
         return this;
     };
     QueueBuilder.prototype.listener = function (listener) {
@@ -70,23 +91,28 @@ var QueueBuilder = (function () {
         return this;
     };
     QueueBuilder.prototype.build = function () {
-        if (this._backend !== null) {
-            this._queue = new Queue_1.Queue(name, this._backend);
-            if (this._handler !== null) {
-                this._queue.setHandler(this._handler);
-                if (this._filters.length > 0) {
-                    this.filters(this._filters);
-                }
-                if (this._listener !== null) {
-                    this._queue.setListener(this._listener);
+        if (this._backend !== null && this._backend !== undefined) {
+            this._queue = new Queue_1.Queue(this._name, this._backend);
+        }
+        else {
+            this._queue = new Queue_1.Queue(this._name, new InMemoryBackend_1.InMemoryBackend());
+        }
+        if (this._handler !== null) {
+            this._queue.setHandler(this._handler);
+            if (this._filters.length > 0) {
+                for (var i = 0; i < this._filters.length; i++) {
+                    this._queue.addFilter(this._filters[i]);
                 }
             }
+            if (this._listener !== null && this._listener !== undefined) {
+                this._queue.setListener(this._listener);
+            }
             else {
-                throw "You must set a handler";
+                this._queue.setListener(new Listener_1.Listener(this._successFunct, this._failureFunct, this._expireFunct));
             }
         }
         else {
-            throw "You must set a backend";
+            throw "You must set a handler";
         }
         return this._queue;
     };

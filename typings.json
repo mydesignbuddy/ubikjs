@@ -1,6 +1,7 @@
 {
   "name": "ubikjs",
   "globalDependencies": {
-    "mocha": "registry:dt/mocha#2.2.5+20161221010438"
+    "mocha": "registry:dt/mocha#2.2.5+20161221010438",
+    "node": "registry:env/node#6.0.0+20170213133316"
   }
 }

@@ -257,10 +257,10 @@ System.register("Queue", ["Message", "Handlers/HandlerResponse"], function (expo
         }
     };
 });
-System.register("Listeners/ConsoleListner", ["Listeners/Listener"], function (exports_8, context_8) {
+System.register("Listeners/ConsoleListener", ["Listeners/Listener"], function (exports_8, context_8) {
     "use strict";
     var __moduleName = context_8 && context_8.id;
-    var Listener_1, ConsoleListner;
+    var Listener_1, ConsoleListener;
     return {
         setters: [
             function (Listener_1_1) {
@@ -268,20 +268,49 @@ System.register("Listeners/ConsoleListner", ["Listeners/Listener"], function (ex
             }
         ],
         execute: function () {
-            ConsoleListner = (function (_super) {
-                __extends(ConsoleListner, _super);
-                function ConsoleListner() {
-                    return _super.call(this, function (message) {
-                        console.log("Successful", message);
+            ConsoleListener = (function (_super) {
+                __extends(ConsoleListener, _super);
+                function ConsoleListener() {
+                    var _this = _super.call(this, function (message) {
+                        this.success(message);
                     }, function (message) {
-                        console.debug("Failure", message);
+                        this.error(message);
                     }, function (response) {
-                        console.info("Expirated", response);
+                        this.expired(response);
                     }) || this;
+                    _this.isNode = false;
+                    if ((typeof process !== 'undefined') && (typeof process.versions.node !== 'undefined')) {
+                        _this.isNode = true;
+                    }
+                    return _this;
                 }
-                return ConsoleListner;
+                ConsoleListener.prototype.success = function (message) {
+                    if (this.isNode) {
+                        console.log("\x1b[32m" + JSON.stringify(message) + "\x1b[0m");
+                    }
+                    else {
+                        console.log(message);
+                    }
+                };
+                ConsoleListener.prototype.error = function (message) {
+                    if (this.isNode) {
+                        console.log("\x1b[31m" + JSON.stringify(message) + "\x1b[0m");
+                    }
+                    else {
+                        console.debug(message);
+                    }
+                };
+                ConsoleListener.prototype.expired = function (response) {
+                    if (this.isNode) {
+                        console.log("\x1b[33m" + JSON.stringify(response) + "\x1b[0m");
+                    }
+                    else {
+                        console.info(response);
+                    }
+                };
+                return ConsoleListener;
             }(Listener_1.Listener));
-            exports_8("ConsoleListner", ConsoleListner);
+            exports_8("ConsoleListener", ConsoleListener);
         }
     };
 });
@@ -625,14 +654,17 @@ System.register("Filters/UUIDFilter", ["Message", "Filters/QueueFilter"], functi
         }
     };
 });
-System.register("QueueBuilder", ["Listeners/ConsoleListner", "Handlers/Handler", "Queue", "Backends/FilesystemBackend", "Backends/InMemoryBackend", "Backends/LocalStorageBackend", "Backends/SqliteBackend", "Filters/ExpirationFilter", "Filters/RetryFilter", "Filters/UUIDFilter"], function (exports_18, context_18) {
+System.register("QueueBuilder", ["Listeners/Listener", "Listeners/ConsoleListener", "Handlers/Handler", "Queue", "Backends/FilesystemBackend", "Backends/InMemoryBackend", "Backends/LocalStorageBackend", "Backends/SqliteBackend", "Filters/ExpirationFilter", "Filters/RetryFilter", "Filters/UUIDFilter"], function (exports_18, context_18) {
     "use strict";
     var __moduleName = context_18 && context_18.id;
-    var ConsoleListner_1, Handler_1, Queue_1, FilesystemBackend_1, InMemoryBackend_1, LocalStorageBackend_1, SqliteBackend_1, ExpirationFilter_1, RetryFilter_1, UUIDFilter_1, QueueBuilder;
+    var Listener_2, ConsoleListener_1, Handler_1, Queue_1, FilesystemBackend_1, InMemoryBackend_1, LocalStorageBackend_1, SqliteBackend_1, ExpirationFilter_1, RetryFilter_1, UUIDFilter_1, QueueBuilder;
     return {
         setters: [
-            function (ConsoleListner_1_1) {
-                ConsoleListner_1 = ConsoleListner_1_1;
+            function (Listener_2_1) {
+                Listener_2 = Listener_2_1;
+            },
+            function (ConsoleListener_1_1) {
+                ConsoleListener_1 = ConsoleListener_1_1;
             },
             function (Handler_1_1) {
                 Handler_1 = Handler_1_1;
@@ -669,6 +701,10 @@ System.register("QueueBuilder", ["Listeners/ConsoleListner", "Handlers/Handler",
                     if (backend !== null) {
                         this._backend = backend;
                     }
+                    this._filters = [];
+                    this._successFunct = function () { };
+                    this._failureFunct = function () { };
+                    this._expireFunct = function () { };
                 }
                 QueueBuilder.prototype.handler = function (handler) {
                     var type = handler.constructor.name;
@@ -680,17 +716,33 @@ System.register("QueueBuilder", ["Listeners/ConsoleListner", "Handlers/Handler",
                     }
                     return this;
                 };
-                QueueBuilder.prototype.InMemory = function () {
+                QueueBuilder.prototype.success = function (funct) {
+                    this._successFunct = funct;
+                    return this;
+                };
+                QueueBuilder.prototype.failure = function (funct) {
+                    this._failureFunct = funct;
+                    return this;
+                };
+                QueueBuilder.prototype.expire = function (funct) {
+                    this._expireFunct = funct;
+                    return this;
+                };
+                QueueBuilder.prototype.inMemory = function () {
                     this._backend = new InMemoryBackend_1.InMemoryBackend();
+                    return this;
                 };
-                QueueBuilder.prototype.Filesystem = function () {
+                QueueBuilder.prototype.filesystem = function () {
                     this._backend = new FilesystemBackend_1.FilesystemBackend();
+                    return this;
                 };
-                QueueBuilder.prototype.LocalStorage = function () {
+                QueueBuilder.prototype.localStorage = function () {
                     this._backend = new LocalStorageBackend_1.LocalStorageBackend();
+                    return this;
                 };
-                QueueBuilder.prototype.Sqlite = function () {
+                QueueBuilder.prototype.sqlite = function () {
                     this._backend = new SqliteBackend_1.SqliteBackend();
+                    return this;
                 };
                 QueueBuilder.prototype.filter = function (filter) {
                     this._filters.push(filter);
@@ -716,7 +768,7 @@ System.register("QueueBuilder", ["Listeners/ConsoleListner", "Handlers/Handler",
                     return this;
                 };
                 QueueBuilder.prototype.debug = function () {
-                    this._listener = new ConsoleListner_1.ConsoleListner();
+                    this._listener = new ConsoleListener_1.ConsoleListener();
                     return this;
                 };
                 QueueBuilder.prototype.listener = function (listener) {
@@ -724,23 +776,28 @@ System.register("QueueBuilder", ["Listeners/ConsoleListner", "Handlers/Handler",
                     return this;
                 };
                 QueueBuilder.prototype.build = function () {
-                    if (this._backend !== null) {
-                        this._queue = new Queue_1.Queue(name, this._backend);
-                        if (this._handler !== null) {
-                            this._queue.setHandler(this._handler);
-                            if (this._filters.length > 0) {
-                                this.filters(this._filters);
-                            }
-                            if (this._listener !== null) {
-                                this._queue.setListener(this._listener);
+                    if (this._backend !== null && this._backend !== undefined) {
+                        this._queue = new Queue_1.Queue(this._name, this._backend);
+                    }
+                    else {
+                        this._queue = new Queue_1.Queue(this._name, new InMemoryBackend_1.InMemoryBackend());
+                    }
+                    if (this._handler !== null) {
+                        this._queue.setHandler(this._handler);
+                        if (this._filters.length > 0) {
+                            for (var i = 0; i < this._filters.length; i++) {
+                                this._queue.addFilter(this._filters[i]);
                             }
                         }
+                        if (this._listener !== null && this._listener !== undefined) {
+                            this._queue.setListener(this._listener);
+                        }
                         else {
-                            throw "You must set a handler";
+                            this._queue.setListener(new Listener_2.Listener(this._successFunct, this._failureFunct, this._expireFunct));
                         }
                     }
                     else {
-                        throw "You must set a backend";
+                        throw "You must set a handler";
                     }
                     return this._queue;
                 };
@@ -750,7 +807,7 @@ System.register("QueueBuilder", ["Listeners/ConsoleListner", "Handlers/Handler",
         }
     };
 });
-System.register("Ubik", ["Message", "Queue", "QueueBuilder", "Backends/FilesystemBackend", "Backends/InMemoryBackend", "Backends/LocalStorageBackend", "Backends/SqliteBackend", "Filters/ExpirationFilter", "Filters/QueueFilter", "Filters/RetryFilter", "Filters/UUIDFilter", "Handlers/Handler", "Handlers/HandlerResponse", "Listeners/Listener", "Listeners/ConsoleListner"], function (exports_19, context_19) {
+System.register("Ubik", ["Message", "Queue", "QueueBuilder", "Backends/FilesystemBackend", "Backends/InMemoryBackend", "Backends/LocalStorageBackend", "Backends/SqliteBackend", "Filters/ExpirationFilter", "Filters/QueueFilter", "Filters/RetryFilter", "Filters/UUIDFilter", "Handlers/Handler", "Handlers/HandlerResponse", "Listeners/Listener", "Listeners/ConsoleListener"], function (exports_19, context_19) {
     "use strict";
     var __moduleName = context_19 && context_19.id;
     return {
@@ -820,14 +877,14 @@ System.register("Ubik", ["Message", "Queue", "QueueBuilder", "Backends/Filesyste
                     "HandlerResponse": HandlerResponse_3_1["HandlerResponse"]
                 });
             },
-            function (Listener_2_1) {
+            function (Listener_3_1) {
                 exports_19({
-                    "Listener": Listener_2_1["Listener"]
+                    "Listener": Listener_3_1["Listener"]
                 });
             },
-            function (ConsoleListner_2_1) {
+            function (ConsoleListener_2_1) {
                 exports_19({
-                    "ConsoleListner": ConsoleListner_2_1["ConsoleListner"]
+                    "ConsoleListener": ConsoleListener_2_1["ConsoleListener"]
                 });
             }
         ],

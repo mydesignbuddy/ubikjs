@@ -126,7 +126,7 @@ export class QueueBuilder {
                 }
             }
 
-            if (this._listener !== null && this._listener !== undefined) {
+            if (this._listener !== null) {
                 this._queue.setListener(this._listener);
             } else {
                 this._queue.setListener(new Listener(this._successFunct, this._failureFunct, this._expireFunct));

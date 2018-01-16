@@ -10,7 +10,7 @@
             var causeErrorCheckBox;
             var outputBox;
 
-            function customListner() {
+            function customListener() {
                 this.successful = function (r) { refreshOutput(); console.log("Success!") }
                 this.failure = function (r) { refreshOutput(); console.error("Failed!") }
                 this.expired = function (r) { refreshOutput(); console.info("Expiried!") }
@@ -23,7 +23,7 @@
                 .retries(3)
                 .supportExpiration()
                 .supportUUID()
-                .listener(new customListner())
+                .listener(new customListener())
                 .build();
 
             q.enqueue({ payload: { some: "helloworld1" }});

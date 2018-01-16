@@ -5,9 +5,9 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Listener_1 = require("./Listener");
-var ConsoleListner = (function (_super) {
-    __extends(ConsoleListner, _super);
-    function ConsoleListner() {
+var ConsoleListener = (function (_super) {
+    __extends(ConsoleListener, _super);
+    function ConsoleListener() {
         var _this = _super.call(this, function (message) {
             this.success(message);
         }, function (message) {
@@ -21,7 +21,7 @@ var ConsoleListner = (function (_super) {
         }
         return _this;
     }
-    ConsoleListner.prototype.success = function (message) {
+    ConsoleListener.prototype.success = function (message) {
         if (this.isNode) {
             console.log("\x1b[32m" + JSON.stringify(message) + "\x1b[0m");
         }
@@ -29,7 +29,7 @@ var ConsoleListner = (function (_super) {
             console.log(message);
         }
     };
-    ConsoleListner.prototype.error = function (message) {
+    ConsoleListener.prototype.error = function (message) {
         if (this.isNode) {
             console.log("\x1b[31m" + JSON.stringify(message) + "\x1b[0m");
         }
@@ -37,7 +37,7 @@ var ConsoleListner = (function (_super) {
             console.debug(message);
         }
     };
-    ConsoleListner.prototype.expired = function (response) {
+    ConsoleListener.prototype.expired = function (response) {
         if (this.isNode) {
             console.log("\x1b[33m" + JSON.stringify(response) + "\x1b[0m");
         }
@@ -45,6 +45,6 @@ var ConsoleListner = (function (_super) {
             console.info(response);
         }
     };
-    return ConsoleListner;
+    return ConsoleListener;
 }(Listener_1.Listener));
-exports.ConsoleListner = ConsoleListner;
+exports.ConsoleListener = ConsoleListener;

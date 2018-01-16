@@ -1,5 +1,4 @@
 var assert = require('assert');
-var chai = require('chai');
 var Message = require('../dist/commonjs/Ubik').Message;
 describe('Message', function () {
   describe('constructor()', function () {

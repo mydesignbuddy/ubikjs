@@ -29,8 +29,8 @@ var Handler_1 = require("./Handlers/Handler");
 exports.Handler = Handler_1.Handler;
 var HandlerResponse_1 = require("./Handlers/HandlerResponse");
 exports.HandlerResponse = HandlerResponse_1.HandlerResponse;
-// Listners
+// Listeners
 var Listener_1 = require("./Listeners/Listener");
 exports.Listener = Listener_1.Listener;
-var ConsoleListner_1 = require("./Listeners/ConsoleListner");
-exports.ConsoleListner = ConsoleListner_1.ConsoleListner;
+var ConsoleListener_1 = require("./Listeners/ConsoleListener");
+exports.ConsoleListener = ConsoleListener_1.ConsoleListener;

@@ -1,26 +1,33 @@
 'use strict';
 
 var gulp = require('gulp'),
-    debug = require('gulp-debug'),
+    //debug = require('gulp-debug'),
     inject = require('gulp-inject'),
     tsc = require('gulp-typescript'),
     tslint = require('gulp-tslint'),
-    sourcemaps = require('gulp-sourcemaps'),
-    del = require('del'),
+    //sourcemaps = require('gulp-sourcemaps'),
+    //del = require('del'),
     Config = require('./gulpfile.config'),
     mocha = require('gulp-mocha'),
-    merge = require('merge2'); //,
-    //tsProject = tsc.createProject('tsconfig.json')
-    ;
+    merge = require('merge2'),
+    gulpSequence = require('gulp-sequence'),
+    watch = require('gulp-watch')
+;
 
-var concat = require("gulp-concat");
+//var concat = require("gulp-concat");
 var config = new Config();
 
 
 gulp.task('test', function () {
-    gulp.src('test/**/*.js', { read: false })
-        // gulp-mocha needs filepaths so you can't have any plugins before it
-        .pipe(mocha({ reporter: 'min' }))
+  gulp.src('test/**/*.js', { read: false })
+    // gulp-mocha needs filepaths so you can't have any plugins before it
+    .pipe(mocha({ reporter: 'spec' }));
+});
+
+gulp.task('watch', function () {
+    // Endless stream mode
+    return watch('src/**/*.ts', { ignoreInitial: false })
+        .pipe(gulp.dest('gulp'));
 });
 
 /**
@@ -80,5 +87,5 @@ gulp.task('compile-amd', function () {
 });
 
 
-gulp.task('compile', ['compile-commonjs', 'compile-amd']);
-gulp.task('default', ['ts-lint', 'ts-compile']);
+gulp.task('compile-dist', gulpSequence('compile-commonjs', 'compile-amd'));
+gulp.task('default', gulpSequence('ts-lint', 'ts-compile', 'compile-dist'));
